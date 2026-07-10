@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F1 DRAFT — Monte seu time dos sonhos</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&family=Share+Tech+Mono&display=swap');
+
+:root {
+  --red: #e10600;
+  --red-dark: #9a0400;
+  --red-light: #fff0f0;
+  --black: #f5f5f5;
+  --carbon: #ffffff;
+  --panel: #ffffff;
+  --panel2: #f8f8f8;
+  --line: #e0e0e0;
+  --muted: #999999;
+  --silver: #555555;
+  --white: #111111;
+  --gold: #9a7000;
+  --mono: 'Share Tech Mono', monospace;
+  --display: 'Barlow Condensed', sans-serif;
+  --body: 'Barlow', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--body);
+  overflow: hidden;
+}
+
+/* Subtle grid texture */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 23px, rgba(0,0,0,.04) 23px, rgba(0,0,0,.04) 24px),
+    repeating-linear-gradient(90deg, transparent, transparent 23px, rgba(0,0,0,.04) 23px, rgba(0,0,0,.04) 24px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── SCREENS ── */
+.screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 1;
+  transform: translateX(100%);
+  transition: transform .35s cubic-bezier(.4,0,.2,1);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.screen.active { transform: translateX(0); }
+.screen.exit   { transform: translateX(-100%); }
+
+/* ── TOP BAR ── */
+.topbar {
+  background: var(--red);
+  border-bottom: none;
+  padding: 0 1.5rem;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.topbar-logo {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: 3px;
+  color: #ffffff;
+}
+.topbar-logo span { color: rgba(255,255,255,0.6); }
+.topbar-right {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: rgba(255,255,255,0.6);
+  letter-spacing: 1px;
+}
+
+/* ── HERO ── */
+.hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(225,6,0,.07) 0%, transparent 65%);
+  pointer-events: none;
+}
+.hero-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--red);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+}
+.hero-title {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: clamp(52px, 12vw, 96px);
+  line-height: .9;
+  letter-spacing: -1px;
+  text-transform: uppercase;
+  color: var(--white);
+}
+.hero-title .accent { color: var(--red); display: block; }
+.hero-sub {
+  margin-top: 1.25rem;
+  font-size: 14px;
+  color: var(--silver);
+  line-height: 1.6;
+  max-width: 360px;
+}
+
+/* Red diagonal stripe */
+.stripe {
+  display: block;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--red) 20%, var(--red) 80%, transparent);
+  margin: 1.5rem 0;
+}
+
+/* ── STAT PILLS ── */
+.stat-row {
+  display: flex;
+  gap: .75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: .75rem 0 1.5rem;
+}
+.stat-pill {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: .4rem .9rem;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--silver);
+  letter-spacing: 1px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+.stat-pill strong { color: var(--white); font-family: var(--display); font-size: 15px; font-weight: 700; margin-right: 4px; }
+
+/* ── BUTTONS ── */
+.btn-primary {
+  background: var(--red);
+  color: #fff;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: none;
+  padding: 14px 36px;
+  cursor: pointer;
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  transition: background .15s, transform .1s;
+}
+.btn-primary:hover { background: #ff1810; }
+.btn-primary:active { transform: scale(.98); }
+.btn-secondary {
+  background: #fff;
+  color: var(--silver);
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: 1px solid var(--line);
+  padding: 10px 24px;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.btn-secondary:hover { border-color: #999; color: var(--white); }
+.btn-full { width: 100%; clip-path: none; }
+
+/* ── CONTENT AREA ── */
+.content {
+  flex: 1;
+  padding: 1.25rem 1.5rem;
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ── SECTION HEADER ── */
+.section-hdr {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: 1.25rem;
+}
+.section-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--red);
+  letter-spacing: 2px;
+  flex-shrink: 0;
+}
+.section-title {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--white);
+}
+.section-line { flex: 1; height: 1px; background: var(--line); }
+
+/* ── PANEL ── */
+.panel {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--red);
+  padding: 1rem 1.25rem;
+  margin-bottom: .75rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+}
+.panel-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.panel-value {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--white);
+}
+.panel-sub {
+  font-size: 12px;
+  color: var(--silver);
+  margin-top: 2px;
+}
+
+/* ── GRID ── */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .6rem; }
+
+/* ── PICK CARD ── */
+.pick-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  padding: .9rem 1rem;
+  cursor: pointer;
+  transition: border-color .15s, background .15s, box-shadow .15s;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+}
+.pick-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--red);
+  transform: scaleX(0);
+  transition: transform .2s;
+  transform-origin: left;
+}
+.pick-card:hover { border-color: #ccc; background: #fafafa; box-shadow: 0 2px 8px rgba(0,0,0,.09); }
+.pick-card:hover::before { transform: scaleX(1); }
+.pick-card.selected { border-color: var(--red); background: #fff8f8; }
+.pick-card.selected::before { transform: scaleX(1); }
+.pick-name {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: .5px;
+  color: var(--white);
+}
+.pick-meta {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 4px;
+  letter-spacing: 1px;
+}
+.rating-track {
+  height: 3px;
+  background: var(--line);
+  margin-top: 8px;
+  position: relative;
+}
+.rating-fill {
+  height: 100%;
+  background: var(--red);
+  transition: width .5s cubic-bezier(.4,0,.2,1);
+}
+.rating-num {
+  position: absolute;
+  right: 0;
+  top: -14px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--red);
+}
+
+/* ── STAT BARS (car) ── */
+.stat-bars { margin-top: .5rem; }
+.stat-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 5px;
+}
+.stat-bar-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted);
+  width: 50px;
+  flex-shrink: 0;
+  letter-spacing: 1px;
+}
+.stat-bar-track {
+  flex: 1;
+  height: 3px;
+  background: var(--line);
+}
+.stat-bar-fill { height: 100%; background: var(--red); }
+.stat-bar-num {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--silver);
+  width: 20px;
+  text-align: right;
+}
+
+/* ── DICE ── */
+.dice-container {
+  text-align: center;
+  padding: 1.5rem 0 .5rem;
+}
+.dice-val {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 72px;
+  color: var(--red);
+  line-height: 1;
+  display: block;
+  animation: diceIn .4s cubic-bezier(.175,.885,.32,1.275);
+}
+@keyframes diceIn { from { transform: scale(.3) rotate(-20deg); opacity: 0; } to { transform: scale(1) rotate(0); opacity: 1; } }
+.dice-era {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: 2px;
+  color: var(--white);
+  text-transform: uppercase;
+  margin-top: .5rem;
+}
+.dice-team {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  margin-top: 4px;
+}
+
+/* ── PROGRESS TRACK ── */
+.race-track {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 1.5rem;
+  padding: 0 .25rem;
+}
+.track-dot {
+  width: 10px;
+  height: 10px;
+  border: 1px solid #ccc;
+  background: #fff;
+  transform: rotate(45deg);
+  flex-shrink: 0;
+  transition: background .2s, border-color .2s;
+}
+.track-dot.done { background: var(--red); border-color: var(--red); }
+.track-dot.current { background: var(--red); border-color: var(--white); box-shadow: 0 0 8px var(--red); }
+.track-line { flex: 1; height: 1px; background: var(--line); }
+.track-line.done { background: var(--red); }
+
+/* ── STRATEGY CARD ── */
+.strat-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  padding: .75rem 1rem;
+  cursor: pointer;
+  transition: border-color .15s, background .15s, box-shadow .15s;
+  position: relative;
+  box-shadow: 0 1px 3px rgba(0,0,0,.05);
+}
+.strat-card:hover { border-color: #ccc; box-shadow: 0 2px 8px rgba(0,0,0,.09); }
+.strat-card.picked { border-color: var(--red); background: #fff8f8; box-shadow: 0 0 0 2px rgba(225,6,0,.1); }
+.strat-icon {
+  font-size: 20px;
+  margin-bottom: 4px;
+  display: block;
+}
+.strat-name {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: .5px;
+  color: var(--white);
+  text-transform: uppercase;
+}
+.strat-desc {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted);
+  margin-top: 3px;
+  letter-spacing: 1px;
+}
+.strat-bonus {
+  font-family: var(--mono);
+  font-size: 9px;
+  margin-top: 6px;
+  color: var(--gold);
+}
+
+/* ── TELEMETRY HUD ── */
+.telemetry {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-top: 2px solid var(--red);
+  padding: .75rem 1rem;
+  margin-bottom: .75rem;
+  display: flex;
+  gap: 1.5rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+}
+.tele-item { text-align: center; }
+.tele-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.tele-value {
+  font-family: var(--mono);
+  font-size: 18px;
+  color: var(--white);
+  margin-top: 2px;
+}
+.tele-value.red { color: var(--red); }
+.tele-value.gold { color: var(--gold); }
+
+/* ── RESULT ── */
+.result-hero {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--red);
+  padding: 2rem 1.25rem;
+  text-align: center;
+  margin-bottom: .75rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+}
+.result-pos-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--red);
+  letter-spacing: 4px;
+  margin-bottom: .5rem;
+}
+.result-pos {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 72px;
+  line-height: 1;
+  color: var(--white);
+}
+.result-pos.gold { color: var(--gold); }
+.result-pts {
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--silver);
+  margin-top: .5rem;
+}
+
+/* ── RACE ROW ── */
+.race-row {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .7rem 1rem;
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+}
+.race-row:last-child { border-bottom: none; }
+.race-flag { font-size: 20px; flex-shrink: 0; }
+.race-name {
+  flex: 1;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: .5px;
+}
+.race-pos {
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+}
+.race-pos.p1 { color: var(--gold); border-color: var(--gold); }
+.race-pos.p2 { color: #c0c0c0; border-color: #c0c0c0; }
+.race-pos.p3 { color: #cd7f32; border-color: #cd7f32; }
+.race-pos.pts { color: var(--silver); }
+.race-pos.none { color: var(--muted); }
+.race-pts-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  width: 48px;
+  text-align: right;
+}
+
+/* ── ANALYSIS BOX ── */
+.analysis {
+  background: #f9f9f9;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--muted);
+  padding: .75rem 1rem;
+  margin-bottom: .75rem;
+  font-size: 13px;
+  color: var(--silver);
+  line-height: 1.6;
+  font-style: italic;
+}
+
+/* ── FINAL PODIUM ── */
+.podium-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: .75rem;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+}
+.podium-rank {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 48px;
+  line-height: 1;
+  flex-shrink: 0;
+  width: 70px;
+}
+.podium-info {}
+.podium-name {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.podium-detail {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+  letter-spacing: 1px;
+}
+
+/* ── CALENDAR LIST ── */
+.cal-row {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .6rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.cal-row:last-child { border-bottom: none; }
+.cal-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  width: 20px;
+  flex-shrink: 0;
+}
+.cal-flag { font-size: 18px; flex-shrink: 0; }
+.cal-name {
+  flex: 1;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 14px;
+}
+.cal-circuit {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+
+/* ── REROLL BTN ── */
+.reroll-btn {
+  background: #fff;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 8px 16px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: border-color .15s, color .15s;
+  margin-top: .5rem;
+}
+.reroll-btn:hover:not(:disabled) { border-color: #999; color: var(--white); }
+.reroll-btn:disabled { opacity: .3; cursor: not-allowed; }
+
+/* ── BOTTOM NAV SPACE ── */
+.bottom-action {
+  padding: 1rem 1.5rem 1.5rem;
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+  flex-shrink: 0;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--black); }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 480px) {
+  .hero-title { font-size: 52px; }
+  .grid3 { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ SCREEN: INTRO ══════════════════ -->
+<div id="s-intro" class="screen active">
+  <div class="topbar">
+    <div class="topbar-logo">F1<span>DRAFT</span></div>
+    <div class="topbar-right">SEASON SIM v1.0</div>
+  </div>
+  <div class="hero">
+    <div class="hero-eyebrow">// FORMULA 1 FANTASY SIMULATOR</div>
+    <h1 class="hero-title">
+      MONTE<br>
+      <span class="accent">SEU TIME</span>
+    </h1>
+    <div class="stripe"></div>
+    <div class="hero-sub">
+      Dados sorteiam uma era da F1. Você escolhe o piloto, o carro e define a estratégia de cada corrida.
+    </div>
+    <div class="stat-row">
+      <div class="stat-pill"><strong>8</strong> ERAS</div>
+      <div class="stat-pill"><strong>16</strong> EQUIPES</div>
+      <div class="stat-pill"><strong>40+</strong> PILOTOS</div>
+      <div class="stat-pill"><strong>5</strong> CORRIDAS</div>
+    </div>
+    <button class="btn-primary" onclick="startDraft()" style="margin-top:.5rem">
+      🎲 ROLAR OS DADOS
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════ SCREEN: DRAFT PILOT ══════════════════ -->
+<div id="s-draft-pilot" class="screen">
+  <div class="topbar">
+    <div class="topbar-logo">F1<span>DRAFT</span></div>
+    <div class="topbar-right">STEP 1/2 — PILOTO</div>
+  </div>
+  <div class="content">
+    <div class="dice-container">
+      <span class="dice-val" id="dice-icon">🎲</span>
+      <div class="dice-era" id="dice-era">—</div>
+      <div class="dice-team" id="dice-team">—</div>
+    </div>
+
+    <div class="section-hdr" style="margin-top:1.5rem">
+      <span class="section-num">01</span>
+      <span class="section-title">Escolha o piloto</span>
+      <span class="section-line"></span>
+    </div>
+
+    <div class="grid2" id="pilot-options" style="margin-bottom:.75rem"></div>
+
+    <button class="reroll-btn" id="reroll-btn" onclick="rerollPilot()">
+      ⟳ NOVO SORTEIO &nbsp;(<span id="reroll-count">3</span> restantes)
+    </button>
+  </div>
+  <div class="bottom-action" style="padding-bottom:.75rem"></div>
+</div>
+
+<!-- ══════════════════ SCREEN: DRAFT CAR ══════════════════ -->
+<div id="s-draft-car" class="screen">
+  <div class="topbar">
+    <div class="topbar-logo">F1<span>DRAFT</span></div>
+    <div class="topbar-right">STEP 2/2 — CARRO</div>
+  </div>
+  <div class="content">
+    <div class="panel" style="margin-bottom:1.25rem">
+      <div class="panel-label">Piloto selecionado</div>
+      <div class="panel-value" id="chosen-pilot-name">—</div>
+      <div class="panel-sub" id="chosen-pilot-era">—</div>
+    </div>
+
+    <div class="section-hdr">
+      <span class="section-num">02</span>
+      <span class="section-title">Escolha o chassis</span>
+      <span class="section-line"></span>
+    </div>
+
+    <div class="grid2" id="car-options"></div>
+  </div>
+</div>
+
+<!-- ══════════════════ SCREEN: TEAM SUMMARY ══════════════════ -->
+<div id="s-summary" class="screen">
+  <div class="topbar">
+    <div class="topbar-logo">F1<span>DRAFT</span></div>
+    <div class="topbar-right">SEU TIME</div>
+  </div>
+  <div class="content">
+    <div class="section-hdr">
+      <span class="section-num">//</span>
+      <span class="section-title">Configuração final</span>
+      <span class="section-line"></span>
+    </div>
+
+    <div class="grid2" style="margin-bottom:.75rem">
+      <div class="panel">
+        <div class="panel-label">Piloto</div>
+        <div class="panel-value" id="sum-pilot">—</div>
+        <div class="panel-sub" id="sum-pilot-era">—</div>
+      </div>
+      <div class="panel">
+        <div class="panel-label">Chassis</div>
+        <div class="panel-value" id="sum-car">—</div>
+        <div class="panel-sub" id="sum-car-sub">—</div>
+      </div>
+    </div>
+
+    <div class="telemetry">
+      <div class="tele-item">
+        <div class="tele-label">RITMO</div>
+        <div class="tele-value red" id="sum-pace">—</div>
+      </div>
+      <div class="tele-item">
+        <div class="tele-label">CONSIST.</div>
+        <div class="tele-value" id="sum-cons">—</div>
+      </div>
+      <div class="tele-item">
+        <div class="tele-label">MOTOR</div>
+        <div class="tele-value" id="sum-power">—</div>
+      </div>
+      <div class="tele-item">
+        <div class="tele-label">PILOTO</div>
+        <div class="tele-value gold" id="sum-rating">—</div>
+      </div>
+    </div>
+
+    <div class="section-hdr" style="margin-top:1.25rem">
+      <span class="section-num">//</span>
+      <span class="section-title">Calendário</span>
+      <span class="section-line"></span>
+    </div>
+
+    <div style="background:var(--panel);border:1px solid var(--line);padding:.5rem 1rem;margin-bottom:1rem">
+      <div id="cal-list"></div>
+    </div>
+  </div>
+  <div class="bottom-action">
+    <button class="btn-primary btn-full" onclick="startSeason()">
+      INICIAR TEMPORADA →
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════ SCREEN: RACE ══════════════════ -->
+<div id="s-race" class="screen">
+  <div class="topbar">
+    <div class="topbar-logo">F1<span>DRAFT</span></div>
+    <div class="topbar-right" id="race-topbar-label">CORRIDA 1/5</div>
+  </div>
+  <div class="content">
+    <div style="margin-bottom:1.25rem">
+      <div class="section-num" style="margin-bottom:.5rem" id="race-flag-name">🇦🇺 GP DA AUSTRÁLIA</div>
+      <div class="race-track" id="race-track"></div>
+    </div>
+
+    <div class="telemetry" style="margin-bottom:1rem">
+      <div class="tele-item">
+        <div class="tele-label">PILOTO</div>
+        <div class="tele-value red" style="font-size:12px" id="race-pilot-hud">—</div>
+      </div>
+      <div class="tele-item">
+        <div class="tele-label">CARRO</div>
+        <div class="tele-value" style="font-size:12px" id="race-car-hud">—</div>
+      </div>
+      <div class="tele-item">
+        <div class="tele-label">PTS SEP.</div>
+        <div class="tele-value gold" id="race-pts-hud">0</div>
+      </div>
+    </div>
+
+    <div class="section-hdr">
+      <span class="section-num">S1</span>
+      <span class="section-title">Pneus</span>
+      <span class="section-line"></span>
+    </div>
+    <div class="grid3" id="tire-opts" style="margin-bottom:1.25rem"></div>
+
+    <div class="section-hdr">
+      <span class="section-num">S2</span>
+      <span class="section-title">Pit Stop</span>
+      <span class="section-line"></span>
+    </div>
+    <div class="grid3" id="pit-opts" style="margin-bottom:1.25rem"></div>
+
+    <div class="section-hdr">
+      <span class="section-num">S3</span>
+      <span class="section-title">Modo Motor</span>
+      <span class="section-line"></span>
+    </div>
+    <div class="grid3" id="engine-opts" style="margin-bottom:1.25rem"></div>
+  </div>
+  <div class="bottom-action">
+    <button class="btn-primary btn-full" id="run-race-btn" onclick="runRace()" disabled>
+      SIMULAR CORRIDA →
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════ SCREEN: RESULT ══════════════════ -->
+<div id="s-result" class="screen">
+  <div class="topbar">
+    <div class="topbar-logo">F1<span>DRAFT</span></div>
+    <div class="topbar-right" id="res-topbar">RESULTADO</div>
+  </div>
+  <div class="content">
+    <div class="result-hero">
+      <div class="result-pos-label" id="res-race-name">GP DA AUSTRÁLIA</div>
+      <div class="result-pos" id="res-pos">P1</div>
+      <div class="result-pts" id="res-pts">+25 PONTOS</div>
+    </div>
+
+    <div class="analysis" id="res-analysis">—</div>
+
+    <div class="telemetry">
+      <div class="tele-item">
+        <div class="tele-label">PONTOS SEP.</div>
+        <div class="tele-value gold" id="res-total">0</div>
+      </div>
+      <div class="tele-item">
+        <div class="tele-label">VITÓRIAS</div>
+        <div class="tele-value red" id="res-wins">0</div>
+      </div>
+      <div class="tele-item">
+        <div class="tele-label">CORRIDA</div>
+        <div class="tele-value" id="res-race-num">1/5</div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-action">
+    <button class="btn-primary btn-full" id="next-btn" onclick="nextRace()">
+      PRÓXIMA CORRIDA →
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════ SCREEN: FINAL ══════════════════ -->
+<div id="s-final" class="screen">
+  <div class="topbar">
+    <div class="topbar-logo">F1<span>DRAFT</span></div>
+    <div class="topbar-right">FIM DE TEMPORADA</div>
+  </div>
+  <div class="content">
+    <div class="podium-row" style="background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--red);margin-bottom:.75rem">
+      <div class="podium-rank" id="final-emoji">🏆</div>
+      <div class="podium-info">
+        <div class="podium-name" id="final-verdict">CAMPEÃO!</div>
+        <div class="podium-detail" id="final-detail">—</div>
+      </div>
+    </div>
+
+    <div class="telemetry" style="margin-bottom:1rem">
+      <div class="tele-item">
+        <div class="tele-label">PONTOS TOTAL</div>
+        <div class="tele-value gold" id="final-pts">0</div>
+      </div>
+      <div class="tele-item">
+        <div class="tele-label">VITÓRIAS</div>
+        <div class="tele-value red" id="final-wins">0</div>
+      </div>
+      <div class="tele-item">
+        <div class="tele-label">PÓDIOS</div>
+        <div class="tele-value" id="final-podiums">0</div>
+      </div>
+    </div>
+
+    <div class="section-hdr">
+      <span class="section-num">//</span>
+      <span class="section-title">Resultados</span>
+      <span class="section-line"></span>
+    </div>
+
+    <div style="background:var(--panel);border:1px solid var(--line);margin-bottom:1rem">
+      <div id="final-races"></div>
+    </div>
+
+    <div class="panel" style="margin-bottom:1rem">
+      <div class="panel-label">Seu time</div>
+      <div class="panel-value" id="final-team-pilot">—</div>
+      <div class="panel-sub" id="final-team-car">—</div>
+    </div>
+  </div>
+  <div class="bottom-action">
+    <button class="btn-primary btn-full" onclick="restart()">
+      🎲 JOGAR NOVAMENTE
+    </button>
+  </div>
+</div>
+
+<script>
+const ICONS=['🎲','🎯','🏁','⚡','🔴'];
+
+const ERAS=[
+  {name:"ERA FANGIO",years:"1950–1958",teams:[
+    {name:"ALFA ROMEO",pilots:[{n:"Juan Manuel Fangio",r:98},{n:"Giuseppe Farina",r:87},{n:"Froilán González",r:81}],cars:[{n:"Alfa 159 Alfetta",pace:95,cons:79,power:90},{n:"Maserati 250F",pace:85,cons:87,power:81}]},
+    {name:"FERRARI",pilots:[{n:"Alberto Ascari",r:92},{n:"Mike Hawthorn",r:82},{n:"Peter Collins",r:79}],cars:[{n:"Ferrari 500",pace:87,cons:85,power:83},{n:"Ferrari 246 Dino",pace:90,cons:81,power:88}]}
+  ]},
+  {name:"ERA DOS CONSTRUTORES",years:"1959–1969",teams:[
+    {name:"COOPER",pilots:[{n:"Jack Brabham",r:89},{n:"Stirling Moss",r:94},{n:"Bruce McLaren",r:82}],cars:[{n:"Cooper T51",pace:83,cons:88,power:79},{n:"Cooper T53",pace:86,cons:85,power:82}]},
+    {name:"LOTUS",pilots:[{n:"Jim Clark",r:97},{n:"Graham Hill",r:87},{n:"Jochen Rindt",r:91}],cars:[{n:"Lotus 25",pace:92,cons:74,power:86},{n:"Lotus 49",pace:95,cons:71,power:93}]}
+  ]},
+  {name:"ERA LAUDA/HUNT",years:"1970–1979",teams:[
+    {name:"FERRARI",pilots:[{n:"Niki Lauda",r:95},{n:"Clay Regazzoni",r:79},{n:"Carlos Reutemann",r:84}],cars:[{n:"Ferrari 312B3",pace:88,cons:84,power:89},{n:"Ferrari 312T",pace:93,cons:83,power:91}]},
+    {name:"McLAREN",pilots:[{n:"James Hunt",r:87},{n:"Emerson Fittipaldi",r:90},{n:"Jochen Mass",r:73}],cars:[{n:"McLaren M23",pace:90,cons:87,power:86},{n:"McLaren M26",pace:86,cons:84,power:84}]}
+  ]},
+  {name:"ERA TURBO",years:"1980–1988",teams:[
+    {name:"WILLIAMS",pilots:[{n:"Nigel Mansell",r:91},{n:"Keke Rosberg",r:85},{n:"Nelson Piquet",r:89}],cars:[{n:"Williams FW07",pace:90,cons:87,power:87},{n:"Williams FW11",pace:95,cons:82,power:97}]},
+    {name:"McLAREN TAG",pilots:[{n:"Alain Prost",r:96},{n:"Ayrton Senna",r:99},{n:"John Watson",r:77}],cars:[{n:"McLaren MP4/2",pace:93,cons:90,power:94},{n:"McLaren MP4/4",pace:98,cons:88,power:97}]}
+  ]},
+  {name:"ERA SENNA",years:"1989–1997",teams:[
+    {name:"McLAREN HONDA",pilots:[{n:"Ayrton Senna",r:99},{n:"Gerhard Berger",r:84},{n:"Mika Häkkinen",r:87}],cars:[{n:"McLaren MP4/5",pace:97,cons:85,power:96},{n:"McLaren MP4/6",pace:95,cons:86,power:94}]},
+    {name:"WILLIAMS RENAULT",pilots:[{n:"Alain Prost",r:96},{n:"Damon Hill",r:83},{n:"Nigel Mansell",r:91}],cars:[{n:"Williams FW14B",pace:98,cons:90,power:97},{n:"Williams FW15C",pace:96,cons:89,power:95}]}
+  ]},
+  {name:"ERA SCHUMACHER",years:"1998–2006",teams:[
+    {name:"FERRARI",pilots:[{n:"Michael Schumacher",r:99},{n:"Rubens Barrichello",r:84},{n:"Felipe Massa",r:79}],cars:[{n:"Ferrari F2002",pace:99,cons:95,power:98},{n:"Ferrari F2004",pace:98,cons:94,power:97}]},
+    {name:"McLAREN MERCEDES",pilots:[{n:"Mika Häkkinen",r:93},{n:"David Coulthard",r:81},{n:"Kimi Räikkönen",r:94}],cars:[{n:"McLaren MP4/15",pace:94,cons:87,power:92},{n:"McLaren MP4/17",pace:90,cons:85,power:90}]}
+  ]},
+  {name:"ERA MODERNA",years:"2010–2019",teams:[
+    {name:"RED BULL RACING",pilots:[{n:"Sebastian Vettel",r:96},{n:"Mark Webber",r:82},{n:"Max Verstappen",r:97}],cars:[{n:"Red Bull RB6",pace:96,cons:90,power:93},{n:"Red Bull RB9",pace:94,cons:91,power:91}]},
+    {name:"MERCEDES AMG",pilots:[{n:"Lewis Hamilton",r:97},{n:"Nico Rosberg",r:87},{n:"Valtteri Bottas",r:81}],cars:[{n:"Mercedes W05",pace:97,cons:93,power:98},{n:"Mercedes W07",pace:98,cons:94,power:99}]}
+  ]},
+  {name:"ERA HÍBRIDA",years:"2020–2024",teams:[
+    {name:"RED BULL",pilots:[{n:"Max Verstappen",r:99},{n:"Sergio Pérez",r:85},{n:"Alexander Albon",r:75}],cars:[{n:"Red Bull RB16B",pace:97,cons:91,power:95},{n:"Red Bull RB19",pace:99,cons:95,power:98}]},
+    {name:"FERRARI",pilots:[{n:"Charles Leclerc",r:94},{n:"Carlos Sainz",r:87},{n:"Sebastian Vettel",r:88}],cars:[{n:"Ferrari SF-23",pace:90,cons:85,power:91},{n:"Ferrari F1-75",pace:93,cons:83,power:92}]}
+  ]}
+];
+
+const RACES=[
+  {name:"GP DA AUSTRÁLIA",flag:"🇦🇺",circuit:"MELBOURNE"},
+  {name:"GP DE MONACO",flag:"🇲🇨",circuit:"MONTE CARLO"},
+  {name:"GP DA ITÁLIA",flag:"🇮🇹",circuit:"MONZA"},
+  {name:"GP DO BRASIL",flag:"🇧🇷",circuit:"INTERLAGOS"},
+  {name:"GP DO JAPÃO",flag:"🇯🇵",circuit:"SUZUKA"}
+];
+
+const PTS_SCALE=[25,18,15,12,10,8,6,4,2,1];
+
+const TIRES=[
+  {id:'soft',icon:'🔴',name:'MACIO',desc:'ALTO DESEMPENHO',detail:'Rápido mas degrada em 15+ voltas',bonus:9,risk:14},
+  {id:'med', icon:'🟡',name:'MÉDIO',desc:'BALANCEADO',detail:'Equilibrado e previsível',bonus:4,risk:4},
+  {id:'hard',icon:'⚪',name:'DURO',desc:'ALTA DURABILIDADE',detail:'Lento mas extremamente confiável',bonus:-1,risk:-4}
+];
+const PITS=[
+  {id:'early',icon:'⚡',name:'CEDO',desc:'UNDERCUT',detail:'Entra antes e ganha pista livre',bonus:6,risk:8},
+  {id:'normal',icon:'⏱',name:'PADRÃO',desc:'TIMING IDEAL',detail:'Momento calculado pela equipe',bonus:2,risk:2},
+  {id:'late', icon:'🎯',name:'TARDE',desc:'OVERCUT',detail:'Fica mais tempo na pista',bonus:5,risk:9}
+];
+const ENGINES=[
+  {id:'attack',icon:'🔥',name:'ATAQUE',desc:'MODO QUALIFICAÇÃO',detail:'Máxima potência, risco de falha',bonus:8,risk:12},
+  {id:'balance',icon:'⚙️',name:'BALANCEADO',desc:'MODO CORRIDA',detail:'Performance sustentável',bonus:3,risk:3},
+  {id:'save',  icon:'🌿',name:'ECONOMIA',desc:'MODO CONSERVAÇÃO',detail:'Protege motor, perde posições',bonus:-2,risk:-5}
+];
+
+let ST={era:null,team:null,pilot:null,car:null,rerolls:3,raceIdx:0,pts:0,wins:0,podiums:0,results:[],strat:{tire:null,pit:null,engine:null}};
+
+/* ── SCREEN TRANSITIONS ── */
+let current='s-intro';
+function show(id){
+  const prev=document.getElementById(current);
+  const next=document.getElementById(id);
+  prev.classList.add('exit');
+  next.classList.add('active');
+  setTimeout(()=>{ prev.classList.remove('active','exit'); },360);
+  current=id;
+  next.scrollTop=0;
+}
+
+/* ── DRAFT ── */
+function startDraft(){
+  ST.rerolls=3;
+  rollEraTeam();
+  show('s-draft-pilot');
+}
+
+function rollEraTeam(){
+  const era=ERAS[Math.floor(Math.random()*ERAS.length)];
+  const team=era.teams[Math.floor(Math.random()*era.teams.length)];
+  ST.era=era; ST.team=team; ST.pilot=null;
+  document.getElementById('dice-icon').textContent=ICONS[Math.floor(Math.random()*ICONS.length)];
+  document.getElementById('dice-era').textContent=era.name;
+  document.getElementById('dice-team').textContent='// '+team.name+' · '+era.years+' //';
+  renderPilots();
+  updateRerollBtn();
+}
+
+function updateRerollBtn(){
+  const btn=document.getElementById('reroll-btn');
+  document.getElementById('reroll-count').textContent=ST.rerolls;
+  btn.disabled=ST.rerolls<=0;
+}
+
+function renderPilots(){
+  const c=document.getElementById('pilot-options');
+  c.innerHTML='';
+  ST.team.pilots.forEach(p=>{
+    const d=document.createElement('div');
+    d.className='pick-card';
+    d.innerHTML=`
+      <div class="pick-name">${p.n}</div>
+      <div class="pick-meta">RATING // ${ST.era.name}</div>
+      <div class="rating-track">
+        <div class="rating-fill" style="width:${p.r}%"></div>
+        <span class="rating-num">${p.r}</span>
+      </div>`;
+    d.onclick=()=>selectPilot(p,d);
+    c.appendChild(d);
+  });
+}
+
+function selectPilot(p,el){
+  document.querySelectorAll('#pilot-options .pick-card').forEach(x=>x.classList.remove('selected'));
+  el.classList.add('selected');
+  ST.pilot=p;
+  setTimeout(()=>{
+    document.getElementById('chosen-pilot-name').textContent=p.n;
+    document.getElementById('chosen-pilot-era').textContent=ST.era.name+' · '+ST.team.name;
+    renderCars();
+    show('s-draft-car');
+  },280);
+}
+
+function rerollPilot(){
+  if(ST.rerolls<=0)return;
+  ST.rerolls--;
+  rollEraTeam();
+}
+
+function renderCars(){
+  const c=document.getElementById('car-options');
+  c.innerHTML='';
+  ST.team.cars.forEach(car=>{
+    const d=document.createElement('div');
+    d.className='pick-card';
+    const avg=Math.round((car.pace+car.cons+car.power)/3);
+    d.innerHTML=`
+      <div class="pick-name">${car.n}</div>
+      <div class="pick-meta">CHASSIS // ${ST.team.name}</div>
+      <div class="stat-bars">
+        <div class="stat-bar-row"><span class="stat-bar-label">RITMO</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:${car.pace}%"></div></div><span class="stat-bar-num">${car.pace}</span></div>
+        <div class="stat-bar-row"><span class="stat-bar-label">CONSIST</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:${car.cons}%"></div></div><span class="stat-bar-num">${car.cons}</span></div>
+        <div class="stat-bar-row"><span class="stat-bar-label">MOTOR</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:${car.power}%"></div></div><span class="stat-bar-num">${car.power}</span></div>
+      </div>`;
+    d.onclick=()=>selectCar(car,d);
+    c.appendChild(d);
+  });
+}
+
+function selectCar(car,el){
+  document.querySelectorAll('#car-options .pick-card').forEach(x=>x.classList.remove('selected'));
+  el.classList.add('selected');
+  ST.car=car;
+  setTimeout(()=>showSummary(),280);
+}
+
+/* ── SUMMARY ── */
+function showSummary(){
+  document.getElementById('sum-pilot').textContent=ST.pilot.n;
+  document.getElementById('sum-pilot-era').textContent=ST.era.name+' · '+ST.team.name;
+  document.getElementById('sum-car').textContent=ST.car.n;
+  document.getElementById('sum-car-sub').textContent=ST.team.name+' · '+ST.era.years;
+  document.getElementById('sum-pace').textContent=ST.car.pace;
+  document.getElementById('sum-cons').textContent=ST.car.cons;
+  document.getElementById('sum-power').textContent=ST.car.power;
+  document.getElementById('sum-rating').textContent=ST.pilot.r;
+  const cal=document.getElementById('cal-list');
+  cal.innerHTML=RACES.map((r,i)=>`
+    <div class="cal-row">
+      <span class="cal-num">${String(i+1).padStart(2,'0')}</span>
+      <span class="cal-flag">${r.flag}</span>
+      <span class="cal-name">${r.name}</span>
+      <span class="cal-circuit">${r.circuit}</span>
+    </div>`).join('');
+  show('s-summary');
+}
+
+/* ── SEASON ── */
+function startSeason(){
+  ST.raceIdx=0; ST.pts=0; ST.wins=0; ST.podiums=0; ST.results=[];
+  loadRace();
+  show('s-race');
+}
+
+function loadRace(){
+  const r=RACES[ST.raceIdx];
+  document.getElementById('race-topbar-label').textContent='CORRIDA '+(ST.raceIdx+1)+'/5';
+  document.getElementById('race-flag-name').textContent=r.flag+' '+r.name;
+  document.getElementById('race-pilot-hud').textContent=ST.pilot.n.split(' ').pop().toUpperCase();
+  document.getElementById('race-car-hud').textContent=ST.car.n.split(' ').slice(-1)[0].toUpperCase();
+  document.getElementById('race-pts-hud').textContent=ST.pts;
+  ST.strat={tire:null,pit:null,engine:null};
+  renderStrat('tire-opts',TIRES,'tire');
+  renderStrat('pit-opts',PITS,'pit');
+  renderStrat('engine-opts',ENGINES,'engine');
+  renderTrack();
+  document.getElementById('run-race-btn').disabled=true;
+}
+
+function renderTrack(){
+  const t=document.getElementById('race-track');
+  t.innerHTML=RACES.map((_,i)=>{
+    const dot=`<div class="track-dot${i<ST.raceIdx?' done':i===ST.raceIdx?' current':''}"></div>`;
+    const line=i<RACES.length-1?`<div class="track-line${i<ST.raceIdx?' done':''}"></div>`:'';
+    return dot+line;
+  }).join('');
+}
+
+function renderStrat(cId,opts,key){
+  const c=document.getElementById(cId);
+  c.innerHTML='';
+  opts.forEach(o=>{
+    const d=document.createElement('div');
+    d.className='strat-card';
+    const bonusSign=o.bonus>=0?'+':'';
+    d.innerHTML=`
+      <span class="strat-icon">${o.icon}</span>
+      <div class="strat-name">${o.name}</div>
+      <div class="strat-desc">${o.desc}</div>
+      <div class="strat-bonus">${bonusSign}${o.bonus} PERF · RISCO ${o.risk}</div>`;
+    d.onclick=()=>{
+      c.querySelectorAll('.strat-card').forEach(x=>x.classList.remove('picked'));
+      d.classList.add('picked');
+      ST.strat[key]=o;
+      checkStrat();
+    };
+    c.appendChild(d);
+  });
+}
+
+function checkStrat(){
+  document.getElementById('run-race-btn').disabled=!(ST.strat.tire&&ST.strat.pit&&ST.strat.engine);
+}
+
+/* ── RACE SIM ── */
+function runRace(){
+  const race=RACES[ST.raceIdx];
+  const t=ST.strat.tire, p=ST.strat.pit, e=ST.strat.engine;
+  const base=Math.round(ST.pilot.r*.4+ST.car.pace*.3+ST.car.cons*.15+ST.car.power*.15);
+  const stratBonus=t.bonus+p.bonus+e.bonus;
+  const riskTotal=t.risk+p.risk+e.risk;
+  const luck=(Math.random()*22)-11;
+  const riskRoll=Math.random()*100;
+  const penalty=riskRoll<riskTotal*.75?Math.floor(Math.random()*18):0;
+  const score=Math.max(10,Math.min(100,base+stratBonus+luck-penalty));
+  const rawPos=Math.round(10-(score/11));
+  const pos=Math.max(1,Math.min(10,rawPos));
+  const pts=PTS_SCALE[pos-1]||0;
+  ST.pts+=pts;
+  if(pos===1)ST.wins++;
+  if(pos<=3)ST.podiums++;
+  ST.results.push({race,pos,pts});
+
+  // Result screen
+  document.getElementById('res-topbar').textContent=race.flag+' '+race.name;
+  document.getElementById('res-race-name').textContent=race.flag+' '+race.name;
+  const posEl=document.getElementById('res-pos');
+  posEl.textContent='P'+pos;
+  posEl.className='result-pos'+(pos===1?' gold':'');
+  document.getElementById('res-pts').textContent=pts>0?'+'+pts+' PONTOS':'SEM PONTOS';
+  document.getElementById('res-total').textContent=ST.pts;
+  document.getElementById('res-wins').textContent=ST.wins;
+  document.getElementById('res-race-num').textContent=(ST.raceIdx+1)+'/5';
+
+  const analyses=[];
+  if(pos===1) analyses.push('Corrida perfeita — pilotagem e estratégia sem erros.');
+  else if(pos<=3) analyses.push('Pódio garantido. Trabalho sólido da equipe.');
+  if(t.id==='soft'&&penalty>8) analyses.push('Os pneus macios degradaram rápido, perdendo ritmo no final.');
+  if(e.id==='attack'&&penalty>6) analyses.push('Modo ataque forçou o motor além do limite seguro.');
+  if(p.id==='early'&&luck>4) analyses.push('O undercut foi perfeito, ganhando a posição no pit stop.');
+  if(p.id==='late'&&luck>4) analyses.push('Overcut funcionou — a estratégia de ficar na pista pagou dividendos.');
+  if(penalty>12) analyses.push('Um toque ou problema técnico custou posições valiosas.');
+  if(luck>7) analyses.push('Sorte a favor hoje — a chuva ou safety car ajudou.');
+  if(!analyses.length) analyses.push('Corrida dentro do esperado. A estratégia de '+t.name.toLowerCase()+' cumpriu o que prometia.');
+  document.getElementById('res-analysis').textContent=analyses.slice(0,2).join(' ');
+
+  const isLast=ST.raceIdx>=4;
+  document.getElementById('next-btn').textContent=isLast?'VER RESULTADO FINAL →':'PRÓXIMA CORRIDA →';
+  show('s-result');
+}
+
+function nextRace(){
+  ST.raceIdx++;
+  if(ST.raceIdx>=5){showFinal();return;}
+  loadRace();
+  show('s-race');
+}
+
+/* ── FINAL ── */
+function showFinal(){
+  const emoji=ST.wins>=3?'🏆':ST.wins>=1?'🥈':'🏁';
+  const verdict=ST.wins>=4?'CAMPEÃO DA TEMPORADA':ST.wins>=2?'TEMPORADA FORTE':ST.wins>=1?'BOA TEMPORADA':'TEMPORADA DIFÍCIL';
+  document.getElementById('final-emoji').textContent=emoji;
+  document.getElementById('final-verdict').textContent=verdict;
+  document.getElementById('final-detail').textContent=ST.pts+' PTS · '+ST.wins+' VITÓRIA'+(ST.wins!==1?'S':'')+' · '+ST.podiums+' PÓDIO'+(ST.podiums!==1?'S':'');
+  document.getElementById('final-pts').textContent=ST.pts;
+  document.getElementById('final-wins').textContent=ST.wins;
+  document.getElementById('final-podiums').textContent=ST.podiums;
+  document.getElementById('final-team-pilot').textContent=ST.pilot.n;
+  document.getElementById('final-team-car').textContent=ST.car.n+' · '+ST.team.name;
+  const fr=document.getElementById('final-races');
+  fr.innerHTML=ST.results.map(r=>{
+    const cls=r.pos===1?'p1':r.pos===2?'p2':r.pos===3?'p3':r.pts>0?'pts':'none';
+    return `<div class="race-row">
+      <span class="race-flag">${r.race.flag}</span>
+      <span class="race-name">${r.race.name}</span>
+      <span class="race-pos ${cls}">P${r.pos}</span>
+      <span class="race-pts-label">${r.pts>0?'+'+r.pts+' pts':'—'}</span>
+    </div>`;
+  }).join('');
+  show('s-final');
+}
+
+function restart(){
+  ST={era:null,team:null,pilot:null,car:null,rerolls:3,raceIdx:0,pts:0,wins:0,podiums:0,results:[],strat:{tire:null,pit:null,engine:null}};
+  show('s-intro');
+}
+</script>
+</body>
+</html>
